@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import keys from './keys';
 import styles from './Keyboard.css';
-console.log(styles)
+
+const keyClassName = obj => {
+  const sharp = obj.text.includes('#') ? styles.blackKey : styles.whiteKey
+  return [styles.key, sharp].join(' ');
+}
 
 class Keyboard extends Component {
   constructor(props) {
@@ -11,17 +15,11 @@ class Keyboard extends Component {
 
   render() {
     return (
-      <div className="Keyboard">
-        <header className="Keyboard-header">
-          <h1 className={styles.title}>Welcome to React</h1>
-        </header>
-        <p className={styles.image}>
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-        <ul>
+      <div className={styles.keyboard}>
+        <ul className={styles.keys}>
           {
             keys[0].map((obj) => {
-              return <li key={obj.key}>
+              return <li key={obj.key} className={keyClassName(obj)}>
                 {obj.text} | {obj.keycode} | {obj.key}
               </li>
             })

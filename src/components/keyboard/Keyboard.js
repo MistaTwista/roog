@@ -11,15 +11,23 @@ class Keyboard extends Component {
   constructor(props) {
     super(props)
     this.octaves = props.octaves
-    console.log(this.state)
   }
 
-  clickHandler(obj) {
+  shouldComponentUpdate(nextProps, nextState) {
+    return true;
+  }
+
+  mouseDownHandler(obj) {
     return () => {
-      this.props.onClick(obj)
+      this.props.onChange({type: 'KEY_DOWN', obj: obj})
     }
   }
 
+  mouseUpHandler(obj) {
+    return () => {
+      this.props.onChange({type: 'KEY_UP', obj: obj})
+    }
+  }
 
   render() {
     return (
@@ -31,7 +39,9 @@ class Keyboard extends Component {
                 <li
                   key={obj.key}
                   className={keyClassName(obj)}
-                  onClick={this.clickHandler(obj)}>
+                  onMouseDown={this.mouseDownHandler(obj)}
+                  onMouseUp={this.mouseUpHandler(obj)}
+                >
                 </li>
               )
             })

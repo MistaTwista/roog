@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import logo from './logo.svg'
 import Keyboard from './components/keyboard/Keyboard'
+import Envelope from './components/envelope/Envelope'
+import Mixer from './components/mixer/Mixer'
 import styles from './App.css'
 
 class App extends Component {
@@ -12,13 +14,11 @@ class App extends Component {
         type: 'LP',
         value: 100
       },
-      env: {
-        amplifier: [0, 64, 64, 127],
-        filter: [0, 64, 64, 127]
+      amplifierEnv: [0, 64, 64, 127],
+      filterEnv: [0, 64, 64, 127],
       },
       mixer: {
-        oscOne: 127,
-        oscSub: 0,
+        oscOne: 0,
         oscTwo: 0,
         noise: 0
       },
@@ -38,9 +38,24 @@ class App extends Component {
     return false
   }
 
-  handleKeyPress(note) {
-    this.setState(prevState => ({ note: note.text }));
-    this.note = note.text
+  keyboardChange(event) {
+    if (event.type === 'KEY_DOWN') {
+      this.setState(prevState => ({ note: event.obj.text }))
+    } else if (event.type === 'KEY_UP') {
+      this.setState(prevState => ({ note: null }))
+    }
+  }
+
+  envelopeChange(val) {
+    this.setState(prevState => ({ amplifierEnv: val }))
+  }
+
+  filterChange(val) {
+    this.setState(prevState => ({ filterEnv: val }))
+  }
+
+  mixerChange(state) {
+    this.setState(prevState => ({mixer: state}))
   }
 
   render() {
@@ -48,14 +63,31 @@ class App extends Component {
       <div className={styles.app}>
         <header className={styles.header}>
           <img src={logo} className={styles.logo} alt="logo" />
-          <h1 className={styles.title}>{this.note}</h1>
+          <h1 className={styles.title}>{this.state.note}</h1>
         </header>
         <p className={styles.intro}>
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
         <Keyboard
           octaves={this.octaves}
-          onClick={(note) => this.handleKeyPress(note)}
+          onChange={(event) => this.keyboardChange(event)}
+        />
+        <Mixer
+          sliderType='horizontal'
+          state={this.state.mixer}
+          onChange={(state) => this.mixerChange(state)}
+        />
+        <Envelope
+          name='Filter'
+          value={[0, 120, 64, 60]}
+          sliderType='vertical'
+          onChange={(val) => this.filterChange(val)}
+        />
+        <Envelope
+          name='Amp'
+          value={[0, 120, 64, 60]}
+          sliderType='vertical'
+          onChange={(val) => this.envelopeChange(val)}
         />
       </div>
     )

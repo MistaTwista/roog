@@ -1,0 +1,10 @@
+.slider {
+}
+
+.vertical {
+  -webkit-appearance: slider-vertical;
+}
+
+.inline {
+  display: inline-block;
+}

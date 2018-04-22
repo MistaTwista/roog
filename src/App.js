@@ -14,9 +14,8 @@ class App extends Component {
         type: 'LP',
         value: 100
       },
-      amplifierEnv: [0, 64, 64, 127],
-      filterEnv: [0, 64, 64, 127],
-      },
+      filterEnv: { A: 0, D: 64, S: 64, R: 127 },
+      ampEnv: { A: 0, D: 64, S: 64, R: 127 },
       mixer: {
         oscOne: 0,
         oscTwo: 0,
@@ -65,9 +64,6 @@ class App extends Component {
           <img src={logo} className={styles.logo} alt="logo" />
           <h1 className={styles.title}>{this.state.note}</h1>
         </header>
-        <p className={styles.intro}>
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
         <Keyboard
           octaves={this.octaves}
           onChange={(event) => this.keyboardChange(event)}
@@ -79,13 +75,13 @@ class App extends Component {
         />
         <Envelope
           name='Filter'
-          value={[0, 120, 64, 60]}
+          state={this.state.filterEnv}
           sliderType='vertical'
           onChange={(val) => this.filterChange(val)}
         />
         <Envelope
           name='Amp'
-          value={[0, 120, 64, 60]}
+          state={this.state.ampEnv}
           sliderType='vertical'
           onChange={(val) => this.envelopeChange(val)}
         />

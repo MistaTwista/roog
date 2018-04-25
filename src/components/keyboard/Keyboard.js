@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import keys from './keys'
 import styles from './Keyboard.css'
 
@@ -7,16 +7,7 @@ const keyClassName = obj => {
   return [styles.key, sharp].join(' ')
 }
 
-class Keyboard extends Component {
-  constructor(props) {
-    super(props)
-    this.octaves = props.octaves
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return true;
-  }
-
+class Keyboard extends PureComponent {
   mouseDownHandler(obj) {
     return () => {
       this.props.onChange({type: 'KEY_DOWN', obj: obj})

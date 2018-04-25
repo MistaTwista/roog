@@ -1,44 +1,32 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styles from './Mixer.css'
 import Slider from './../slider/Slider'
+import Debug from '../debug/Debug'
 
-class Mixer extends Component {
-  constructor(props) {
-    super(props)
-    this.sliderType = this.props.sliderType
-    this.state = this.props.state
-  }
-
+class Mixer extends PureComponent {
   mixerChange(type) {
     return (value) => {
-      this.setState(prevState => {
-        const newState = Object.assign(prevState, {[type]: +value})
-        this.props.onChange(this.state)
-        return newState
-      })
+      this.props.onChange(
+        Object.assign({}, this.props.channels, {[type]: +value})
+      )
     }
-  }
-
-  static defaultProps = {
-    oscOne: 0,
-    oscTwo: 0,
-    noise: 0
   }
 
   render() {
     return (
       <div className={styles.mixer}>
         <h2>{this.props.name}</h2>
+        <Debug debug={this.props.debug} data={this.props.channels} />
         <div>
           {
-            Object.keys(this.state).map((name, index) => {
+            Object.keys(this.props.channels).map((name, index) => {
               return(
                 <Slider
                   key={index}
-                  value={this.state[name]}
+                  value={this.props.channels[name]}
                   name={name}
-                  type={this.sliderType}
+                  type={this.props.sliderType}
                   onChange={this.mixerChange(name)}/>
               )
             })
@@ -50,9 +38,7 @@ class Mixer extends Component {
 }
 
 Mixer.propTypes = {
-  oscOne: PropTypes.number.isRequired,
-  oscTwo: PropTypes.number.isRequired,
-  noise: PropTypes.number.isRequired,
+  channels: PropTypes.object.isRequired,
   onChange: PropTypes.func.isRequired,
 }
 

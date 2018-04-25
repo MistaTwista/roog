@@ -33,6 +33,12 @@ class App extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if (this.state.note !== nextState.note) {
       return true
+    } else if (this.state.mixer !== nextState.mixer) {
+      return true
+    } else if (this.state.filterEnv !== nextState.filterEnv) {
+      return true
+    } else if (this.state.ampEnv !== nextState.ampEnv) {
+      return true
     }
     return false
   }
@@ -45,16 +51,16 @@ class App extends Component {
     }
   }
 
-  envelopeChange(val) {
-    this.setState(prevState => ({ amplifierEnv: val }))
+  ampChange(val) {
+    this.setState(prevState => ({ ampEnv: val }))
   }
 
   filterChange(val) {
     this.setState(prevState => ({ filterEnv: val }))
   }
 
-  mixerChange(state) {
-    this.setState(prevState => ({mixer: state}))
+  mixerChange(channels) {
+    this.setState(prevState => ({ mixer: channels }))
   }
 
   render() {
@@ -66,24 +72,24 @@ class App extends Component {
         </header>
         <Keyboard
           octaves={this.octaves}
-          onChange={(event) => this.keyboardChange(event)}
+          onChange={this.keyboardChange.bind(this)}
         />
         <Mixer
           sliderType='horizontal'
-          state={this.state.mixer}
-          onChange={(state) => this.mixerChange(state)}
+          channels={this.state.mixer}
+          onChange={this.mixerChange.bind(this)}
         />
         <Envelope
           name='Filter'
-          state={this.state.filterEnv}
+          envs={this.state.filterEnv}
           sliderType='vertical'
-          onChange={(val) => this.filterChange(val)}
+          onChange={this.filterChange.bind(this)}
         />
         <Envelope
           name='Amp'
-          state={this.state.ampEnv}
+          envs={this.state.ampEnv}
           sliderType='vertical'
-          onChange={(val) => this.envelopeChange(val)}
+          onChange={this.ampChange.bind(this)}
         />
       </div>
     )

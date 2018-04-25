@@ -1,22 +1,14 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import styles from './Slider.css'
 import PropTypes from 'prop-types'
 
-class Slider extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      value: this.props.value,
-    }
-  }
-
+class Slider extends PureComponent {
   sliderClassName() {
     return [styles.slider, styles.inline].join(' ')
   }
 
   handleChange(e) {
-    let val = e.target.value
-    this.setState(prevState => ({ value: val }))
+    const val = e.target.value
     this.props.onChange(val)
   }
 
@@ -28,7 +20,7 @@ class Slider extends Component {
           type='range'
           min={this.props.min}
           max={this.props.max}
-          value={this.state.value}
+          value={this.props.value}
           className={styles[this.props.type]}
           onChange={this.handleChange.bind(this)}
         />

@@ -1,33 +1,26 @@
 import React, { PureComponent } from 'react'
-import PropTypes from 'prop-types'
 import styles from './Mixer.css'
 import Slider from './../slider/Slider'
 import Debug from '../debug/Debug'
+import PropTypes from 'prop-types'
 
 class Mixer extends PureComponent {
-  mixerChange(type) {
-    return (value) => {
-      this.props.onChange(
-        Object.assign({}, this.props.channels, {[type]: +value})
-      )
-    }
-  }
-
   render() {
     return (
       <div className={styles.mixer}>
         <h2>{this.props.name}</h2>
-        <Debug debug={this.props.debug} data={this.props.channels} />
+        <Debug debug={this.props.debug} data={this.props.data} />
         <div>
           {
-            Object.keys(this.props.channels).map((name, index) => {
+            Object.keys(this.props.data).map((name) => {
               return(
                 <Slider
-                  key={index}
-                  value={this.props.channels[name]}
+                  key={name}
+                  value={this.props.data[name]}
                   name={name}
                   type={this.props.sliderType}
-                  onChange={this.mixerChange(name)}/>
+                  streamType={this.props.streamType}
+                  data$={this.props.data$}/>
               )
             })
           }
@@ -38,8 +31,12 @@ class Mixer extends PureComponent {
 }
 
 Mixer.propTypes = {
-  channels: PropTypes.object.isRequired,
-  onChange: PropTypes.func.isRequired,
+  name: PropTypes.string,
+  sliderType: PropTypes.string,
+  data: PropTypes.object.isRequired,
+  streamType: PropTypes.array.isRequired,
+  data$: PropTypes.object.isRequired,
+  debug: PropTypes.bool,
 }
 
 export default Mixer

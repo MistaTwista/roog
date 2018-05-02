@@ -6,6 +6,7 @@ import Mixer from './components/mixer/Mixer'
 import styles from './App.css'
 import Kefir from 'kefir'
 import handle from './App.handlers'
+const R = require('ramda')
 
 const eventHandler = options => handle(options)
 
@@ -14,11 +15,7 @@ class App extends Component {
     super(props)
     this.octaves = 2
     this.dataFlow$ = Kefir.pool()
-    var defaultState = {
-      filter: {
-        type: 'LP',
-        value: 100
-      },
+    var initState = {
       filterEnv: { A: 0, D: 64, S: 64, R: 127 },
       ampEnv: { A: 0, D: 64, S: 64, R: 127 },
       mixer: {
@@ -26,21 +23,24 @@ class App extends Component {
         oscTwo: 0,
         noise: 0
       },
-      oscillators: [
-        { octave: 1, frequency: 64 },
-        { octave: 1, frequency: 127 }
-      ],
-      masterVolume: 127,
-      note: null
+      keyboard: {
+        note: null
+      }
     }
-    this.state = defaultState
-    this.state$ = this.dataFlow$.scan((state, data) => {
-      return eventHandler({ state, data })
-    }, defaultState)
+    this.state = initState
+    this.event$ = this.dataFlow$.map(e => eventHandler(e))
+  }
+
+  componentDidMount() {
+    this.event$.onValue(state => {
+      this.setState(prevState => {
+        return R.mergeDeepRight(prevState, state)
+      })
+    })
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    if (this.state.note !== nextState.note) {
+    if (this.state.keyboard.note !== nextState.keyboard.note) {
       return true
     } else if (this.state.mixer !== nextState.mixer) {
       return true
@@ -52,26 +52,6 @@ class App extends Component {
     return false
   }
 
-  keyboardChange(event) {
-    if (event.type === 'KEY_DOWN') {
-      this.setState(prevState => ({ note: event.obj.text }))
-    } else if (event.type === 'KEY_UP') {
-      this.setState(prevState => ({ note: null }))
-    }
-  }
-
-  ampChange(val) {
-    this.setState(prevState => ({ ampEnv: val }))
-  }
-
-  filterChange(val) {
-    this.setState(prevState => ({ filterEnv: val }))
-  }
-
-  mixerChange(channels) {
-    this.setState(prevState => ({ mixer: channels }))
-  }
-
   streams(data$) {
     this.dataFlow$.plug(data$)
   }
@@ -81,29 +61,33 @@ class App extends Component {
       <div className={styles.app}>
         <header className={styles.header}>
           <img src={logo} className={styles.logo} alt="logo" />
-          <h1 className={styles.title}>{this.state.note}</h1>
+          <h1 className={styles.title}>{this.state.keyboard.note}</h1>
         </header>
         <Keyboard
           octaves={this.octaves}
-          cStream={this.streams.bind(this)}
-          onChange={this.keyboardChange.bind(this)}
+          streamType={['keyboard']}
+          data$={this.dataFlow$}
         />
         <Mixer
+          name='Mixer'
           sliderType='horizontal'
           channels={this.state.mixer}
-          onChange={this.mixerChange.bind(this)}
+          streamType={['mixer']}
+          data$={this.dataFlow$}
         />
         <Envelope
           name='Filter'
           envs={this.state.filterEnv}
           sliderType='vertical'
-          onChange={this.filterChange.bind(this)}
+          streamType={['filterEnv']}
+          data$={this.dataFlow$}
         />
         <Envelope
           name='Amp'
           envs={this.state.ampEnv}
           sliderType='vertical'
-          onChange={this.ampChange.bind(this)}
+          streamType={['ampEnv']}
+          data$={this.dataFlow$}
         />
       </div>
     )

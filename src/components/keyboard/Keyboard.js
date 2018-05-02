@@ -9,24 +9,19 @@ const keyClassName = obj => {
 }
 
 class Keyboard extends PureComponent {
-  constructor(props) {
-    super(props)
-    this.cType = 'KEYBOARD'
-    this.data$ = Kefir.pool();
-    this.props.cStream(this.data$)
-  }
-
   mouseDownHandler(obj) {
+    const type = this.props.streamType.concat(['key_down'])
     return () => {
-      const e = { type: `${this.cType}:KEY_DOWN`, data: obj }
-      this.data$.plug(Kefir.constant(e))
+      const e = { type, data: obj }
+      this.props.data$.plug(Kefir.constant(e))
     }
   }
 
   mouseUpHandler(obj) {
+    const type = this.props.streamType.concat(['key_up'])
     return () => {
-      const e = { type: `${this.cType}:KEY_UP`, data: obj }
-      this.data$.plug(Kefir.constant(e))
+      const e = { type, data: obj }
+      this.props.data$.plug(Kefir.constant(e))
     }
   }
 

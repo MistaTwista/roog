@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react'
 import keys from './keys'
 import styles from './Keyboard.css'
+import Kefir from 'kefir'
 
 const keyClassName = obj => {
   const sharp = obj.text.includes('#') ? styles.blackKey : styles.whiteKey
@@ -8,15 +9,24 @@ const keyClassName = obj => {
 }
 
 class Keyboard extends PureComponent {
+  constructor(props) {
+    super(props)
+    this.cType = 'KEYBOARD'
+    this.data$ = Kefir.pool();
+    this.props.cStream(this.data$)
+  }
+
   mouseDownHandler(obj) {
     return () => {
-      this.props.onChange({type: 'KEY_DOWN', obj: obj})
+      const e = { type: `${this.cType}:KEY_DOWN`, data: obj }
+      this.data$.plug(Kefir.constant(e))
     }
   }
 
   mouseUpHandler(obj) {
     return () => {
-      this.props.onChange({type: 'KEY_UP', obj: obj})
+      const e = { type: `${this.cType}:KEY_UP`, data: obj }
+      this.data$.plug(Kefir.constant(e))
     }
   }
 

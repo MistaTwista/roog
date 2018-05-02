@@ -4,12 +4,17 @@ import Keyboard from './components/keyboard/Keyboard'
 import Envelope from './components/envelope/Envelope'
 import Mixer from './components/mixer/Mixer'
 import styles from './App.css'
+import Kefir from 'kefir'
+import handle from './App.handlers'
+
+const eventHandler = options => handle(options)
 
 class App extends Component {
   constructor(props) {
     super(props)
     this.octaves = 2
-    this.state = {
+    this.dataFlow$ = Kefir.pool()
+    var defaultState = {
       filter: {
         type: 'LP',
         value: 100
@@ -28,6 +33,10 @@ class App extends Component {
       masterVolume: 127,
       note: null
     }
+    this.state = defaultState
+    this.state$ = this.dataFlow$.scan((state, data) => {
+      return eventHandler({ state, data })
+    }, defaultState)
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -63,6 +72,10 @@ class App extends Component {
     this.setState(prevState => ({ mixer: channels }))
   }
 
+  streams(data$) {
+    this.dataFlow$.plug(data$)
+  }
+
   render() {
     return (
       <div className={styles.app}>
@@ -72,6 +85,7 @@ class App extends Component {
         </header>
         <Keyboard
           octaves={this.octaves}
+          cStream={this.streams.bind(this)}
           onChange={this.keyboardChange.bind(this)}
         />
         <Mixer

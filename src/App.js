@@ -71,20 +71,20 @@ class App extends Component {
         <Mixer
           name='Mixer'
           sliderType='horizontal'
-          channels={this.state.mixer}
+          data={this.state.mixer}
           streamType={['mixer']}
           data$={this.dataFlow$}
         />
         <Envelope
           name='Filter'
-          envs={this.state.filterEnv}
+          data={this.state.filterEnv}
           sliderType='vertical'
           streamType={['filterEnv']}
           data$={this.dataFlow$}
         />
         <Envelope
           name='Amp'
-          envs={this.state.ampEnv}
+          data={this.state.ampEnv}
           sliderType='vertical'
           streamType={['ampEnv']}
           data$={this.dataFlow$}

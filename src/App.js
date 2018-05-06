@@ -12,7 +12,6 @@ function App() {
   const Synth = connect(
     { state: state$ },
     ({ state }) => {
-      console.log('app state', state)
       return (
         <div className={styles.app}>
           <header className={styles.header}>

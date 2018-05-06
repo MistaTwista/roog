@@ -6,9 +6,7 @@ import PropTypes from 'prop-types'
 import { makePath } from '../../utils'
 
 
-const Envelope = (props) => {
-  const { name, debug, path, data, sliderType } = props
-
+const Envelope = ({ name, debug, path, data, sliderType }) => {
   return (
     <div className={styles.envelope}>
       <h2>{name}</h2>

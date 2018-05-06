@@ -16,9 +16,7 @@ function sliderClassName() {
   return [styles.slider, styles.inline].join(' ')
 }
 
-const Slider = (props) => {
-  const { name, path, min, max, value, type } = props
-
+const Slider = ({ name, path, min, max, value, type }) => {
   return (
     <div className={sliderClassName()}>
       <span>{name}</span>

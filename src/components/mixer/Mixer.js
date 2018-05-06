@@ -7,7 +7,13 @@ import { makePath } from '../../utils'
 
 
 const Mixer = (props) => {
-  const { name, debug, path = 'mixer', data, sliderType = 'horizontal' } = props
+  const {
+    name,
+    debug,
+    path = 'mixer',
+    data,
+    sliderType = 'horizontal'
+  } = props
 
   return (
     <div className={styles.mixer}>

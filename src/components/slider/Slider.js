@@ -1,46 +1,43 @@
-import React, { PureComponent } from 'react'
+import React from 'react'
 import styles from './Slider.css'
 import PropTypes from 'prop-types'
-import Kefir from 'kefir'
+import { actions$ } from '../../store'
 
-class Slider extends PureComponent {
-  constructor(props) {
-    super(props)
-    this.streamType = this.props.streamType.concat([this.props.name])
-  }
+const R = require('ramda')
 
-  sliderClassName() {
-    return [styles.slider, styles.inline].join(' ')
-  }
-
-  handleChange(e) {
+function handleChange(statePath) {
+  return (e) => {
     const val = e.target.value
-    this.props.data$.plug(Kefir.constant({
-      type: this.streamType,
-      data: val
-    }))
+    actions$.plug(R.over(R.lensPath(statePath), R.always(+val)))
   }
+}
 
-  render() {
-    return (
-      <div className={this.sliderClassName()}>
-        <span>{this.props.name}</span>
-        <input
-          type='range'
-          min={this.props.min}
-          max={this.props.max}
-          value={this.props.value}
-          className={styles[this.props.type]}
-          onChange={this.handleChange.bind(this)}
-        />
-      </div>
-    );
-  }
+function sliderClassName() {
+  return [styles.slider, styles.inline].join(' ')
+}
+
+const Slider = (props) => {
+  const { name, path, min, max, value, type } = props
+
+  return (
+    <div className={sliderClassName()}>
+      <span>{name}</span>
+      <input
+        type='range'
+        min={min}
+        max={max}
+        value={value}
+        className={styles[type]}
+        onChange={handleChange(path)}
+      />
+    </div>
+  )
 }
 
 Slider.defaultProps = {
   min: 0,
   max: 127,
+  type: 'vertical',
 }
 
 Slider.propTypes = {
@@ -49,8 +46,7 @@ Slider.propTypes = {
   min: PropTypes.number.isRequired,
   max: PropTypes.number.isRequired,
   type: PropTypes.oneOf(['vertical', 'horizontal']),
-  streamType: PropTypes.array.isRequired,
-  data$: PropTypes.object.isRequired,
+  path: PropTypes.array.isRequired,
 }
 
 export default Slider

@@ -2,23 +2,24 @@ import React from 'react'
 import keys from './keys'
 import styles from './Keyboard.css'
 import { actions$ } from '../../store'
-
-const R = require('ramda')
+import { action } from '../../utils'
 
 const keyClassName = obj => {
   const sharp = obj.text.includes('#') ? styles.blackKey : styles.whiteKey
   return [styles.key, sharp].join(' ')
 }
 
-function mouseDownHandler(obj) {
+const noteAction = action(['keyboard', 'note'])
+
+function mouseDown(obj) {
   return () => {
-    actions$.plug(R.over(R.lensPath(['keyboard']), R.always({note: obj.text})))
+    actions$.plug(noteAction(obj.text))
   }
 }
 
-function mouseUpHandler(obj) {
+function mouseUp(_) {
   return () => {
-    actions$.plug(R.over(R.lensPath(['keyboard']), R.always({note: null})))
+    actions$.plug(noteAction(null))
   }
 }
 
@@ -32,8 +33,8 @@ const Keyboard = (props) => {
               <li
                 key={obj.key}
                 className={keyClassName(obj)}
-                onMouseDown={mouseDownHandler(obj)}
-                onMouseUp={mouseUpHandler(obj)}
+                onMouseDown={mouseDown(obj)}
+                onMouseUp={mouseUp(obj)}
               >
               </li>
             )

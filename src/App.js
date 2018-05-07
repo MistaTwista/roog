@@ -1,5 +1,4 @@
 import React from 'react'
-import logo from './logo.svg'
 import Keyboard from './components/keyboard/Keyboard'
 import Envelope from './components/envelope/Envelope'
 import Mixer from './components/mixer/Mixer'
@@ -7,16 +6,24 @@ import styles from './App.css'
 import { state$ } from './store'
 import connect from './connect'
 
-const filterEnv$ = state$.map(s => s.filterEnv).skipDuplicates()
-const ampEnv$ = state$.map(s => s.ampEnv).skipDuplicates()
-const mixer$ = state$.map(s => s.mixer).skipDuplicates()
+if (process.env.NODE_ENV !== 'production') {
+  const {whyDidYouUpdate} = require('why-did-you-update');
+  whyDidYouUpdate(React);
+}
+
+const getSubstream = (name) => state$.map(s => s[name]).skipDuplicates();
+
+const filterEnv$ = getSubstream('filterEnv')
+const ampEnv$ = getSubstream('ampEnv')
+const mixer$ = getSubstream('mixer')
+const keyboard$ = getSubstream('keyboard')
 
 function FilterEnv() {
   const FilterEnvelope = connect(
     { filterEnv: filterEnv$ },
     ({ filterEnv }) => {
       return (
-        <Envelope name='Filter' path='filterEnv' debug={true} data={filterEnv} />
+        <Envelope name='Filter' path='filterEnv' data={filterEnv} />
       )
     }
   )
@@ -50,26 +57,31 @@ function OscMixer() {
   return <OscillatorMixer />
 }
 
-function App() {
-  const Synth = connect(
-    { state: state$ },
-    ({ state }) => {
+function NoteMonitor() {
+  const Note = connect(
+    { keyboard: keyboard$ },
+    ({ keyboard }) => {
       return (
-        <div className={styles.app}>
-          <header className={styles.header}>
-            <img src={logo} className={styles.logo} alt='logo' />
-            <h1>{state.keyboard.note}</h1>
-          </header>
-          <Keyboard />
-          <FilterEnv />
-          <AmpEnv />
-          <OscMixer />
-        </div>
+        <div className={styles.noteMonitor}>{keyboard.note}</div>
       )
     }
   )
 
-  return <Synth />
+  return <Note />
+}
+
+const App = (props) => {
+  return (
+    <div className={styles.app}>
+      <header className={styles.header}>
+        <NoteMonitor />
+      </header>
+      <Keyboard />
+      <FilterEnv />
+      <AmpEnv />
+      <OscMixer />
+    </div>
+  )
 }
 
 export default App

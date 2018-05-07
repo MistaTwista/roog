@@ -2,13 +2,14 @@ import React from 'react'
 import styles from './Slider.css'
 import PropTypes from 'prop-types'
 import { actions$ } from '../../store'
+import { action } from '../../utils'
 
-const R = require('ramda')
+function change(statePath) {
+  const sliderAction = action(statePath)
 
-function handleChange(statePath) {
   return (e) => {
     const val = e.target.value
-    actions$.plug(R.over(R.lensPath(statePath), R.always(+val)))
+    actions$.plug(sliderAction(+val))
   }
 }
 
@@ -26,7 +27,7 @@ const Slider = ({ name, path, min, max, value, type }) => {
         max={max}
         value={value}
         className={styles[type]}
-        onChange={handleChange(path)}
+        onChange={change(path)}
       />
     </div>
   )

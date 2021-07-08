@@ -1,97 +1,87 @@
-import React, { Component } from 'react'
-import logo from './logo.svg'
+import React from 'react'
 import Keyboard from './components/keyboard/Keyboard'
 import Envelope from './components/envelope/Envelope'
 import Mixer from './components/mixer/Mixer'
 import styles from './App.css'
-import Kefir from 'kefir'
-import handle from './App.handlers'
-const R = require('ramda')
+import { state$ } from './store'
+import connect from './connect'
 
-const eventHandler = options => handle(options)
+if (process.env.NODE_ENV !== 'production') {
+  const {whyDidYouUpdate} = require('why-did-you-update');
+  whyDidYouUpdate(React);
+}
 
-class App extends Component {
-  constructor(props) {
-    super(props)
-    this.octaves = 2
-    this.dataFlow$ = Kefir.pool()
-    var initState = {
-      filterEnv: { A: 0, D: 64, S: 64, R: 127 },
-      ampEnv: { A: 0, D: 64, S: 64, R: 127 },
-      mixer: {
-        oscOne: 0,
-        oscTwo: 0,
-        noise: 0
-      },
-      keyboard: {
-        note: null
-      }
+const getSubstream = (name) => state$.map(s => s[name]).skipDuplicates();
+
+const filterEnv$ = getSubstream('filterEnv')
+const ampEnv$ = getSubstream('ampEnv')
+const mixer$ = getSubstream('mixer')
+const keyboard$ = getSubstream('keyboard')
+
+function FilterEnv() {
+  const FilterEnvelope = connect(
+    { filterEnv: filterEnv$ },
+    ({ filterEnv }) => {
+      return (
+        <Envelope name='Filter' path='filterEnv' data={filterEnv} />
+      )
     }
-    this.state = initState
-    this.event$ = this.dataFlow$.map(e => eventHandler(e))
-  }
+  )
 
-  componentDidMount() {
-    this.event$.onValue(state => {
-      this.setState(prevState => {
-        return R.mergeDeepRight(prevState, state)
-      })
-    })
-  }
+  return <FilterEnvelope />
+}
 
-  shouldComponentUpdate(nextProps, nextState) {
-    if (this.state.keyboard.note !== nextState.keyboard.note) {
-      return true
-    } else if (this.state.mixer !== nextState.mixer) {
-      return true
-    } else if (this.state.filterEnv !== nextState.filterEnv) {
-      return true
-    } else if (this.state.ampEnv !== nextState.ampEnv) {
-      return true
+function AmpEnv() {
+  const AmpEnvelope = connect(
+    { ampEnv: ampEnv$ },
+    ({ ampEnv }) => {
+      return (
+        <Envelope name='Amp' path='ampEnv' data={ampEnv} />
+      )
     }
-    return false
-  }
+  )
 
-  streams(data$) {
-    this.dataFlow$.plug(data$)
-  }
+  return <AmpEnvelope />
+}
 
-  render() {
-    return (
-      <div className={styles.app}>
-        <header className={styles.header}>
-          <img src={logo} className={styles.logo} alt="logo" />
-          <h1 className={styles.title}>{this.state.keyboard.note}</h1>
-        </header>
-        <Keyboard
-          octaves={this.octaves}
-          streamType={['keyboard']}
-          data$={this.dataFlow$}
-        />
-        <Mixer
-          name='Mixer'
-          sliderType='horizontal'
-          data={this.state.mixer}
-          streamType={['mixer']}
-          data$={this.dataFlow$}
-        />
-        <Envelope
-          name='Filter'
-          data={this.state.filterEnv}
-          sliderType='vertical'
-          streamType={['filterEnv']}
-          data$={this.dataFlow$}
-        />
-        <Envelope
-          name='Amp'
-          data={this.state.ampEnv}
-          sliderType='vertical'
-          streamType={['ampEnv']}
-          data$={this.dataFlow$}
-        />
-      </div>
-    )
-  }
+function OscMixer() {
+  const OscillatorMixer = connect(
+    { mixer: mixer$ },
+    ({ mixer }) => {
+      return (
+        <Mixer name='Mixer' data={mixer} />
+      )
+    }
+  )
+
+  return <OscillatorMixer />
+}
+
+function NoteMonitor() {
+  const Note = connect(
+    { keyboard: keyboard$ },
+    ({ keyboard }) => {
+      return (
+        <div className={styles.noteMonitor}>{keyboard.note}</div>
+      )
+    }
+  )
+
+  return <Note />
+}
+
+const App = (props) => {
+  return (
+    <div className={styles.app}>
+      <header className={styles.header}>
+        <NoteMonitor />
+      </header>
+      <Keyboard />
+      <FilterEnv />
+      <AmpEnv />
+      <OscMixer />
+    </div>
+  )
 }
 
 export default App
